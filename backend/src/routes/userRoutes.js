@@ -1,10 +1,10 @@
 const express = require('express');
 
 const usersController = require('../controllers/usersController.js');
-const activateUser = require('../middleware/activateUser');
+const activateUser = require('../email/activateUser');
 const tokenVerify = require('../middleware/tokenVerify.js');
-const recoveryUser = require('../middleware/recoveryUser.js');
-const resendToken = require('../middleware/resendToken.js')
+const recoveryUser = require('../email/recoveryUser.js')
+const resendToken = require('../email/resendToken.js')
 
 const userRoutes = express.Router();
 
