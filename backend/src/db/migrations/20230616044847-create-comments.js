@@ -5,9 +5,11 @@ module.exports = {
     await queryInterface.createTable('comments', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
+      },
+      author: {
+        type: Sequelize.STRING
       },
       content: {
         type: Sequelize.STRING
@@ -16,13 +18,13 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       userId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         references: { model: 'users', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
       postId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         references: { model: 'posts', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',

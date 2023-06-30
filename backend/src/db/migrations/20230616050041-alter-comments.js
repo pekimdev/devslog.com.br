@@ -5,17 +5,25 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     return queryInterface.sequelize.transaction(t => {
       return Promise.all([
-        queryInterface.addColumn('comments', 'column', {
-          type: Sequelize.DataTypes.STRING
+        queryInterface.addColumn('comments', 'commentResponses', {
+          type: Sequelize.STRING,
+          allowNull: true,
+          after: 'postId',
+          references: {
+            model: 'comments',
+            key: 'id'
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
         }, { transaction: t })
       ]);
-    })
+    });
   },
 
   async down (queryInterface, Sequelize) {
     return queryInterface.sequelize.transaction(t => {
       return Promise.all([
-        queryInterface.removeColumn('comments', 'column', { transaction: t }),
+        queryInterface.removeColumn('comments', 'commentResponses', { transaction: t }),
       ]);
     });
   }

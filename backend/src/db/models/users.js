@@ -7,9 +7,9 @@ module.exports = (sequelize, DataTypes) => {
     
 
     static associate(models) {
-      Users.hasMany(models.Comments, {
-        foreignKey: 'userId'
-      })
+      this.hasMany(models.Comments, { foreignKey: 'userId', as: 'comments' });
+      this.hasMany(models.Posts, { foreignKey: 'userId', as: 'posts'});
+      this.hasMany(models.Responses, { foreignKey: 'userId', as: 'responses' });
     }
   }
   Users.init({

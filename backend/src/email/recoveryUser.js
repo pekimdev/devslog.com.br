@@ -15,7 +15,9 @@ const recoveryUser = async(req, res) => {
         }  
 
         try{
-            await db.Users.update({ password: decoded.newPassword}, {where: { email: decoded.email } });
+            await db.Users.update({ password: decoded.newPassword}, {where: { 
+                email: decoded.email } 
+            });
             return res.status(200).send(`<font face="arial">
         <em>
             <h2 style="color: green">Password updated successfully!</h2>

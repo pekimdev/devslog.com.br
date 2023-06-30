@@ -1,5 +1,4 @@
 const db = require('../db/models')
-const { compareSync } = require('bcrypt');
 const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer');
 
@@ -13,7 +12,7 @@ const transporter = nodemailer.createTransport({
 
 
 const resendToken = async (req, res) => {
-    const { email, password } = req.body
+    const { email } = req.body
 
     try{
         const result = await db.Users.findAll({where: { email: email}
@@ -24,12 +23,6 @@ const resendToken = async (req, res) => {
         }
 
         if (result.length === 1){
-            const passwordMatch = compareSync(password, result[0].password);
-
-            if (!passwordMatch){
-                return res.status(400).json({message: 'invalid credentials.'});
-            }
-
     
     const token = jwt.sign({id: result[0].id,
         username: result[0].username, 
