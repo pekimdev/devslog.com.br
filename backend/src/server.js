@@ -1,30 +1,27 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 
-const cors = require('cors');
+const cors = require("cors");
 
-require('./db/config/config')
- 
+require("infra/config/config.js");
 
-const userRoutes = require('./routes/userRoutes');
-const postRoutes = require('./routes/postRoutes');
-const commentRoutes = require('./routes/commentRoutes');
-const responseRoutes = require('./routes/responseRoutes');
+const userRoutes = require("routes/userRoutes.js");
+const postRoutes = require("routes/postRoutes.js");
+const commentRoutes = require("routes/commentRoutes.js");
+const responseRoutes = require("routes/responseRoutes.js");
 
 app.use(cors());
 
 app.use(express.json());
-
-
 
 app.use(userRoutes);
 app.use(postRoutes);
 app.use(commentRoutes);
 app.use(responseRoutes);
 
-
-
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
-    console.log(`Listening on ${PORT}`);
+  console.log(`Listening on ${PORT}`);
 });
+
+module.exports = app;

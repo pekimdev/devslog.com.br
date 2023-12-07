@@ -1,80 +1,80 @@
-const db = require('../db/models');
-const { v4: uuid } = require('uuid');
-const jwt = require('jsonwebtoken')
+const database = require("src/infra/models");
+const jwt = require("jsonwebtoken");
+const { v4: uuid } = require("uuid");
 
 const responsesController = {
-
-  getResponsesByAuthor: async (req, res) => {
-    const { author } = req.params;
-    try{
-      const responses = await db.Responses.findAll({ 
-        where: { author: author }
+  getResponsesByAuthor: async (request, response) => {
+    const { author } = request.params;
+    try {
+      const responses = await database.Responses.findAll({
+        where: { author: author },
       });
-      return res.status(200).json(responses);
-    }
-    catch(err){
-      return res.status(400).json({error: err.message});
+      return response.status(200).json(responses);
+    } catch (err) {
+      return response.status(400).json({ error: err.message });
     }
   },
 
-  createResponse: async(req, res) => {
+  createResponse: async (request, response) => {
+    const id = uuid();
 
-  const id = uuid();
+    const authHeader = request.headers["authorization"];
+    const token = authHeader.split(" ")[1];
 
-  const authHeader = req.headers['authorization'];
-  const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.SECRET_KEY, async (err, decoded) => {
+      if (err) {
+        return response.status(500).json({ error: err });
+      }
 
-  jwt.verify(token, process.env.SECRET_KEY, async(err, decoded) => {
+      const { commentId } = request.params;
+      const { content } = request.body;
+      try {
+        await database.Responses.create({
+          id: id,
+          author: decoded.username,
+          content: content,
+          likes: 0,
+          commentId: commentId,
+          userId: decoded.id,
+        });
 
-    if(err){
-      return res.status(500).json({error: err});
-    }
-
-    const { commentId } = req.params;
-    const { content } = req.body;
-  try{
-    await db.Responses.create({ id: id, author: decoded.username, content: content, likes: 0, commentId: commentId, userId: decoded.id });
-
-    return res.status(201).json('response created successfully')
-  }
-   catch(err){
-      return res.status(400).json({error: err.message});
-    }
-  })
-
-},
-
-  updateResponse: async(req, res) => {
-  const { id } = req.params;
-  const { content } = req.body;
-  
-  try{
-    await db.Users.update({content: content}, {
-        where: {id: id}
+        return response.status(201).json("response created successfully");
+      } catch (err) {
+        return response.status(400).json({ error: err.message });
+      }
     });
-
-    return res.status(200).json('response updated successfully');
-  }
-  catch(err) {
-    return res.status(400).json({error: err.message});
-  }
   },
 
-  deleteResponse: async(req, res) => {
-    const { id } = req.params;
+  updateResponse: async (request, response) => {
+    const { id } = request.params;
+    const { content } = request.body;
 
-    try{
-      await db.Responses.destroy({
-        where: { id: id }
-      })
-      return res.status(201).json('response deleted successfully');
-    }
-    catch(err) {
-      return res.status(400).json({error: err.message});
+    try {
+      await database.Users.update(
+        { content: content },
+        {
+          where: { id: id },
+        },
+      );
+
+      return response.status(200).json("response updated successfully");
+    } catch (err) {
+      return response.status(400).json({ error: err.message });
     }
   },
 
+  deleteResponse: async (request, response) => {
+    const { id } = request.params;
 
-}
+    try {
+      await database.Responses.destroy({
+        where: { id: id },
+      });
+      return response.status(201).json("response deleted successfully");
+    } catch (err) {
+      return response.status(400).json({ error: err.message });
+    }
+  },
+};
 
 module.exports = responsesController;

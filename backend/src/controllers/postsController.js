@@ -1,118 +1,117 @@
-const db = require('../db/models');
-const jwt = require('jsonwebtoken');
-const { v4: uuid } = require('uuid');
+const database = require("src/infra/models");
+const jwt = require("jsonwebtoken");
+const { v4: uuid } = require("uuid");
 
 const postsController = {
-
-  getAllPosts: async(req, res) => {
-  
-  try{
-    const posts = await db.Posts.findAll();
-    return res.status(200).json(posts);
-  }
-  catch(err) {
-    return res.status(400).json({error: err.message});
-  }
- },
-
- getPostsByAuthor: async(req, res) => {
-  const { author } = req.params;
-
-  try{
-    const posts = await db.Posts.findAll({ 
-      where: { author: author}
-    });
-
-    if(posts.length === 0) {
-      return res.status(404).json({message: 'No posts found'})
+  getAllPosts: async (request, response) => {
+    try {
+      const posts = await database.Posts.findAll();
+      return response.status(200).json(posts);
+    } catch (err) {
+      return response.status(400).json({ error: err.message });
     }
-    return res.status(200).json(posts);
-  }
-  catch(err){
-    return res.status(400).json({error: err.message})
-  }
+  },
 
- },
+  getPostsByAuthor: async (request, response) => {
+    const { author } = request.params;
 
- postSelected: async(req, res) => {
- 
-  const { author, id } = req.params;
+    try {
+      const posts = await database.Posts.findAll({
+        where: { author: author },
+      });
 
-  try{
-    const post = await db.Posts.findOne({
-      where: { author: author, id: id },
-      include: { association: 'comments', 
-        include: { association: 'responses'}},
-    });
-
-    if(!post){
-      return res.status(404).json({error: 'No post found'});
+      if (posts.length === 0) {
+        return response.status(404).json({ message: "No posts found" });
+      }
+      return response.status(200).json(posts);
+    } catch (err) {
+      return response.status(400).json({ error: err.message });
     }
+  },
 
-    return res.status(200).json(post);
-  }
-  catch(err){
-    return res.status(400).json({error: err.message});
-  }
+  postSelected: async (request, response) => {
+    const { author, id } = request.params;
 
- },
+    try {
+      const post = await database.Posts.findOne({
+        where: { author: author, id: id },
+        include: {
+          association: "comments",
+          include: { association: "responses" },
+        },
+      });
 
- createPost: async(req, res) => {
+      if (!post) {
+        return response.status(404).json({ error: "No post found" });
+      }
 
-  const id = uuid();
-
-  const authHeader = req.headers['authorization'];
-  const token = authHeader.split(' ')[1];
-
-  jwt.verify(token, process.env.SECRET_KEY, async(err, decoded) => {
-    if(err){
-      return res.status(500).json({error: err});
+      return response.status(200).json(post);
+    } catch (err) {
+      return response.status(400).json({ error: err.message });
     }
+  },
 
-  const { title, content } = req.body;
-  try{
-    await db.Posts.create({ id: id, author: decoded.username, title: title, content: content, likes: 0, userId: decoded.id });
+  createPost: async (request, response) => {
+    const id = uuid();
 
-      return res.status(201).json({message: 'content created successfully'});
-  }
-  catch(err){
-    return res.status(400).json({error: err.message});
-  }
+    const authHeader = request.headers["authorization"];
+    const token = authHeader.split(" ")[1];
 
-  });
- },
+    jwt.verify(token, process.env.SECRET_KEY, async (err, decoded) => {
+      if (err) {
+        return response.status(500).json({ error: err });
+      }
 
- updatePost: async (req, res) => {
+      const { title, content } = request.body;
+      try {
+        await database.Posts.create({
+          id: id,
+          author: decoded.username,
+          title: title,
+          content: content,
+          likes: 0,
+          userId: decoded.id,
+        });
 
-  const { id } = req.params;
-  const { title, content } = req.body;
-  try{
-    await db.Users.update({title: title, content: content}, {
-        where: {id: id}
+        return response
+          .status(201)
+          .json({ message: "content created successfully" });
+      } catch (err) {
+        return response.status(400).json({ error: err.message });
+      }
     });
+  },
 
-    return res.status(200).json('post updated successfully');
-  }
-  catch(err){
-    return res.status(400).json({error: err.message});
-  }
+  updatePost: async (request, response) => {
+    const { id } = request.params;
+    const { title, content } = request.body;
+    try {
+      await database.Users.update(
+        { title: title, content: content },
+        {
+          where: { id: id },
+        },
+      );
 
- },
+      return response.status(200).json("post updated successfully");
+    } catch (err) {
+      return response.status(400).json({ error: err.message });
+    }
+  },
 
- deletePost: async(req, res) => {
-  const { id } = req.params;
+  deletePost: async (request, response) => {
+    const { id } = request.params;
 
-  try{
-    await db.Posts.destroy({where: { id: id }});
-      
-    return res.status(200).json({message: 'post deleted successfully'})
-  }
-  catch(err){
-    return res.status(400).json({error: err.message})
-  }
- }
+    try {
+      await database.Posts.destroy({ where: { id: id } });
 
-}
+      return response
+        .status(200)
+        .json({ message: "post deleted successfully" });
+    } catch (err) {
+      return response.status(400).json({ error: err.message });
+    }
+  },
+};
 
-
-module.exports = postsController
+module.exports = postsController;
